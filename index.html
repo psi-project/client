@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>PSI Client</title>
+	<meta charset="utf-8"/>
+	<meta name="author" title="James Montgomery (Australian National University)"/>
+	<meta name="description" title="Example AJAX client for a PSI service"/>
+
+	<link type="text/css" href="css/bootstrap.min.css" rel="stylesheet" />
+	<link type="text/css" href="css/bootstrap-theme/jquery-ui-1.10.0.custom.css" rel="stylesheet" />
+	<link type="text/css" href="css/client.css" rel="stylesheet" />
+
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.8/require.min.js"></script>
+	<script type="text/javascript">
+	require(['./js/config'], function(conf) {
+		require(['jquery', 'psi.client-ui'], function($, ui) {
+			$(function() {
+				ui.clientInstance( $('#psiClient') );
+				$('#initLoading').hide();
+				$('#psiClient').fadeIn();
+			});
+		});
+	});
+	</script>
+	
+</head>
+<body>
+	<h1><img src="img/psi_48x48.png" alt="PSI Logo" title="PSI Logo" style="vertical-align: middle;"/>Protocols and Structures for Inference &mdash; PSI Explorer</h1>
+	<div id="initLoading" style="margin-top: 3em; display:block"><h3>Loading&hellip;</h3></div>
+	<div id="psiClient" style="display:none">
+		<header></header>
+		<section id="serviceTabs">
+		<ul>
+			<li><a href="#tab-add"><span class="ui-icon ui-icon-plusthick"></span> Add a service</a></li>
+		</ul>
+		<div id="tab-add">
+			<form id="form-add"></form>
+		</div>
+		</section>
+		<footer>
+			<div id="messagesArea"></div>
+			<button class="btn btn-secondary" id="btnShowComms">View JSON messages sent between client and server</button>
+			<div id="commsLog" class="ui-state-highlight hidden" title="JSON Communication with Server">
+				<div id="commsLogList" class="ui-widget-content" style="overflow: hidden; min-height: 2em"></div>
+			</div>
+			<p id="attribution" class="note small"></p>
+		</footer>
+	</div>
+	<div id="workingPanel" class="ui-state-highlight ui-corner-all messagebox hidden"></div>
+</body>
+</html>

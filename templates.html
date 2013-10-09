@@ -1,0 +1,279 @@
+<div>
+
+<!-- Templates for main PSI Client -->
+<script type="text/template" id="service-tabs-template">
+	<ul>
+	<% _.each(service.subviews, function(subview) { %>
+		<li><a href="#<%= service.id %>_<%= subview.title %>"><%= subview.title %></a></li>
+	<% }); /* Actual subview to be attached to DOM later */ %>
+	</ul>
+</script>
+
+<script type="text/template" id="tab-template">
+	<li><a href="#<%= panelID %>"><%= title %></a><% if (typeof closeable !== 'undefined' && closeable) { %><span class='ui-icon ui-icon-close' title="Close">Close</span><% } %></li>
+</script>
+
+<script type="text/template" id="resource-drop-down-template">
+	<label class="control-label"><%= label %></label>
+	<div class="controls">
+		<select class="urilist">
+			<% _.each(resources, function(resource, uri) { %> <option value="<%= uri %>"><%= makeViewableURI(uri,hide) %></option><% }); %>
+		</select>
+	</div>
+</script>
+
+<script type="text/template" id="resource-list-template">
+	<div class="scrollbox">
+		<ul class="urilist">
+			<% _.each(resources, function(resource, uri) { %> <li><span title="<%= uri %>"><%= labels[uri] %></span></li> <% }); %>
+		</ul>
+	</div>
+</script>
+
+<script type="text/template" id="resource-list-controls-template">
+	<div class="btn-group btn-group-vertical boxcontrols">
+		<button class="btn" title="Refresh"><i class="icon-refresh"></i></button>
+		<button class="btn" title="Hide"><i class="icon-chevron-up"></i></button>
+	</div>
+</script>
+
+<script type="text/template" id="form-template">
+	<% var isDiv = typeof(id) !== 'undefined';
+	if (isDiv) { %>
+	<div id="<%= id %>" title="<%= typeof(title) === 'undefined' ? id : title %>">
+	<% } %>
+		<form<%= typeof(vertical) !== 'undefined' && vertical ? '' : ' class="form-horizontal"'%>>
+		<% if (typeof(controls) !== 'undefined') { %><%= controls %><% } %>
+		</form>
+		<% if (typeof(hasResult) !== 'undefined' && hasResult) { %>
+			<div class="attributeResult"></div>
+		<% } %>
+	<% if (isDiv) { %>
+	</div>
+	<% } %>
+</script>
+
+<script type="text/template" id="schema-text-template">
+	<% var hide = typeof(hide) !== 'undefined' && hide;
+	   var togglable = typeof(togglable) !== 'undefined' && togglable; %>
+	<span class="json<%= hide ? ' hidden' : '' %><%= togglable ? ' togglable' : '' %>"><% if (togglable) {%><span class="schemaToggle ui-state-default ui-corner-tr ui-corner-bl ui-icon ui-icon-circle-<%= hide ? 'minus' : 'plus' %>"></span><%}%><pre><%= schema %></pre></span>
+</script>
+
+<script type="text/template" id="schema-panel-template">
+	<div class="detailsBox"><%= schema %></div>
+</script>
+
+<script type="text/template" id="relation-panel-template">
+	<table class="detailsTable">
+		<!-- FIXME Get rid of nasty style hacks -->
+		<tr><th>Description:</th><td><%= relation.description %></td>
+		<tr><th>Size:</th><td><%= relation.size %></td>
+		<tr><th>URI:</th><td><%= relation.uri %></td>
+		<tr><th style="vertical-align: middle">Query:</th><td><span style="vertical-align: -40%"><% if(relation.query) { %><%= relation.query %><% } else { %><note>none</note><% } %></span><button class="clearQuery" style="float: right">Clear query</button><button class="editQuery" style="float: right">Edit relation query</button><% if (relation.queryError) { %><span class="note">Relation's query schema could not be compiled: <%= relation.queryError %></span><% } %></td>
+		<tr><th style="vertical-align: middle">Attributes:</th><td><button class="addAttribute btn btn-primary">Create new attribute</button></td></tr>
+	</table>
+	<div class="hidden queryDialog" title="Edit relation query"></div>
+	<div class="hidden createAttributeDialog"></div>
+</script>
+
+<script type="text/template" id="create-attribute-dialog-template">
+	<!-- Containing div with id and (dialog) title must be created by view -->
+	<div style="display: inline-block; margin-right: 1em">
+		<p><strong>Existing attributes</strong></p>
+		<div class="attr_tree_mounting_point"></div>
+		<p style="text-align: center; margin-top: 1em"><button name="copyAttrURI" class="btn">Insert selected attribute URI into definition</button></p>
+	</div>
+	<!-- jsonform is used to fill this -->
+	<form style="display: inline-block; vertical-align: top"></form>
+</script>
+
+<script type="text/template" id="emitter-panel-template">
+	<table class="detailsTable">
+		<tr><th>Description:</th><td><%= emitter.description ? emitter.description : '<note>none</note>' %></td>
+		<tr><th>URI:</th><td><%= emitter.uri %></td>
+		<% if (emitter.accepts) { %><tr><th>Accepts:</th><td><%= getSchemaForViewing(emitter.accepts) %></td><% } %>
+		<tr><th>Emits:</th><td><%= getSchemaForViewing(emitter.emits) %></td>
+		<% if (emitter.provenance) { %><tr><th>Provenance:</th><td><%= getSchemaForViewing(emitter.provenance) %></td><% } %>
+	</table>
+</script>
+
+<!--
+Possible interactions with attributes and transformers and predictors:
+1. [A..] Apply attribute to 'all' instances or a selected instance. (May not be any advantage to current approach of single handler for all these forms, since this could be 'optimised' for attribute's options of all or integer)
+2. [.TP] Apply transformer to a value matching their accepts schema.
+3. [ATP] Join with a transformer or predictor. (Note: will need another view, certainly a collection, to remember those created)
+4. [..P] Update a predictor with one or more values matching its update schema (if this always specifies object values then could generate form (parts) from it)
+5. [A.P] Delete attribute or predictor (may need to inform template of whether the emitter is a transformer (assumed not to be deletable))
+-->
+
+<script type="text/template" id="emitter-interaction-panel-template">
+	<div class="emitterInteractionTabs">
+	<ul>
+		<li><a href="#<%= emitter.uriID %>_apply">Evaluate</a></li>
+		<li><a href="#<%= emitter.uriID %>_join">Join</a></li>
+		<% if (emitter.update) { %><li><a href="#<%= emitter.uriID %>_update">Update</a></li> <% } %>
+		<li><a href="#<%= emitter.uriID %>_delete">Delete</a></li>
+	</ul>
+	<% var form = template('form-template'); %>
+	<%= form({ id: emitter.uriID + '_apply', hasResult: true, controls: emitter.accepts ? undefined : template('apply-attribute-form-controls')() }) %>
+	<%= form({ id: emitter.uriID + '_join', hasResult: false }) %>
+	<% if (emitter.updateSchema) { /* i.e., only if predictor's update schema has been retrieved from .update URI */ %>
+		<%= form({ id: emitter.uriID + '_update' }) %>
+	<% } %>
+	<div id="<%= emitter.uriID %>_delete">
+		<p class="help-block" style="margin-bottom: 3em">Confirm that you wish to delete this <%= what = emitter.accepts ? 'predictor' : 'attribute' %>. Note that the service may not allow it to be deleted.</p>
+		<button class="btn btn-danger">Request deletion</button>
+	</div> 
+	</div>
+</script>
+
+<script type="text/template" id="apply-attribute-form-controls">
+	<p>Apply attribute to <input type="checkbox" class="apply-all"> all instances, or instance <input class="instance" value="1"></p>
+	<button class="btn btn-primary apply">View</button>
+</script>
+
+<script type="text/template" id="learner-panel-template">
+	<table class="detailsTable">
+		<tr><th>Description:</th><td><%= learner.description %></td>
+		<tr><th>URI:</th><td><%= learner.uri %></td>
+		<tr><th>Task Schema:</th><td><%= getSchemaForViewing(learner.taskSchema) %></td>
+	</table>
+	<h3>Define a learning task</h3>
+	<% if (_.isUndefined(learner.taskJSONSchema)) {
+		if (_.isUndefined(learner.schemaError)) { %>
+			<%= template('info-template')({ message: 'Task schema is being compiled to generate controls' }) %>
+		<% } else { %>
+			<%= template('error-template')({ message: 'Unable to compile task schema', details: learner.schemaError }) %>
+		<% } %>
+	<% } else { %>
+		<form class="form-horizontal"></form>
+	<% } %>
+	<div class="taskOutput hidden">
+		<h4>Generated Task</h4>
+		<pre class="schema"></pre>
+	</div>
+</script>
+
+<script type="text/template" id="status-panel-template">
+	<% var state = status.psiType === 'transformer' ? 'check' : 'clock'; %>
+	<table class="detailsTable">
+		<tr><th>URI:</th><td><%= status.uri %></td></tr>
+		<tr>
+			<th>Status:</th>
+			<td>
+				<div class="ui-state-<%= state === 'alert' ? 'error' : 'highlight'%> inline-icon-container" style="margin-bottom: 0px"><span class="ui-icon ui-icon-<%= state %>"></span></div>
+				<% if (state === 'clock') { %>
+					<%= status.status %> <button class="btn btn-primary refresh-in" style="float: right">Refresh now</button>
+				<% } else { %>
+					Complete.
+				<% } %>
+			</td>
+		</tr>
+		<% if (status.learner) { %>
+			<tr><th>Learner:</th><td><%= status.learner %></td></tr>
+		<% } %>
+	</table>
+</script>
+
+<!-- Message templates -->
+
+<script type="text/template" id="comms-message-template">
+	<div class="<%= type %>" style="padding-bottom: 0.5em">
+		<p onclick="$(this).siblings('.json').toggleClass('hidden');" style="cursor: pointer;"><span class="ui-icon ui-icon-circle-arrow-<%= type === 'request' ? 'n' : 's'%>" style="float: left; margin-right: 0.5ex;"></span><%= timestamp %> <%= type==='request' ? 'to' : 'from' %> <%= uri %></p>
+		<div class="json" style="margin-left: 2em;"><%= (_.isUndefined(isHeader) && !isHeader ? ppJSON : ppHeader)(message) %></div>
+	</div>
+</script>
+
+<script type="text/template" id="add-resource-dialog-template">
+	<div id="add-resource-dialog" title="Do you want to add this PSI resource?" class="ui-state-highlight">
+		<p><span class="ui-icon ui-icon-plusthick" style="float: left; margin-right: 0.5ex; margin-bottom: 1ex"></span>Would you like to add this <%= what %>: <%= uri %></p>
+	</div>
+</script>
+
+<script type="text/template" id="message-dialog-template">
+	<div id="message-dialog" title="<%= title %>" class="ui-state-highlight">
+		<p><span class="ui-icon ui-icon-<%= type %>" style="float: left; margin-right: 0.5ex; margin-bottom: 1ex"></span><%= message %></p>
+	</div>
+</script>
+
+<script type="text/template" id="working-popup-template">
+	<p><span class="ajax-loader"></span>
+	<%= (typeof(message)==='undefined') ? 'Working' : message %></p>
+</script>
+
+<script type="text/template" id="working-template">
+	<div class="ui-state-default ui-corner-all messagebox">
+		<p><span class="ui-icon ui-icon-transferthick-e-w"></span>
+		<%= (typeof(message)==='undefined') ? 'Working' : message %></p>
+	</div>
+</script>
+
+<script type="text/template" id="info-template">
+	<div class="ui-state-highlight ui-corner-all messagebox">
+		<p><span class="ui-icon ui-icon-info"></span><%= message %></p>
+	</div>
+</script>
+
+<script type="text/template" id="error-template">
+	<div class="ui-state-error ui-corner-all messagebox">
+		<p><span class="ui-icon ui-icon-alert"></span><%= message %></p>
+		<% if (details != null){ %>
+			<p>Details:</p>	<div class="detailsBox"><% if (!_.isObject(details)) { %><%= details.replace(/<\/?h1>/g,'') %><% } else { %><table>
+				<% _.each(details, function(value, key) { if (typeof(value) !== 'function') { %>
+					<tr><th><%= key %>:</th><td><%= (value instanceof Object) ? ppJSON(value) : value %></td></tr>
+				<% }}); %>
+				</table>
+			<% } %>
+			</div>
+		<% } %>
+	</div>
+</script>
+
+<!-- Templates for Predictor Comparison client -->
+<script type="text/template" id="comparison-panel-template">
+	<h2>Predictor Comparison Tool</h2>
+	<% if (standalone) {%>
+	<p class="help-block">Instructions</p>
+	<ol>
+		<li>Enter the URI of the relation containing the test data on which all predictors will be compared.</li>
+		<li>Enter the URI of a compatible attribute to read instance values (i.e., the attribute's schema must match that of the conformal attribute of each predictor in the comparison)</li>
+		<li>Enter the URI of an attribute to read the values to be predicted</li>
+		<li>Enter the URIs of the predictors you wish to compare</li>
+		<li>Click Compare</li>
+	</ol>
+	<%}%>
+	<div>
+		<form id="comparison-form"></form>
+	</div>
+	<div class="reportPanel hidden ui-state-highlight ui-corner-all"></div>
+	<div class="box" id="progressBox">
+		<h3>Progress messages:</h3>
+		<div id="progressArea"></div>
+	</div>
+</script>
+
+<script type="text/template" id="comparison-report-template">
+	<h2><%= title %></h2>
+	<% if (tester.results.length) { %>
+		<% if (tester.failedCount) {%><p><strong>Warning:</strong> <%= tester.failedCount %> of <%= tester.failedCount + tester.results.length %> tests could not be completed.</p><% } %>
+		<p><strong>Instances in test:</strong> <%= tester.testData.length %></p>
+		<p><strong>Mean <%= tester.lossName %> across all <%= tester.results.length %> predictors:</strong> <%= tester.meanLoss %></p>
+		<% var metrics = tester.results[0].outcome.getSimpleMetrics(); %>
+		<table class="detailsTable">
+			<thead>
+				<tr><th>Predictor</th><% for (i in metrics) { %><th><%= metrics[i].name %></th><%}%></tr>
+			</thead>
+			<tbody>
+			<% for (i in tester.results) { %>
+				<% metrics = tester.results[i].outcome.getSimpleMetrics(); %>
+				<tr><td><a href="<%= tester.results[i].predictor %>" title="View predictor's details (in JSON) in a new tab" target="_blank"><%= tester.results[i].predictor %></td><%for (j in metrics) {%><td style="text-align: center"><%= metrics[j].value.toPrecision(3) %></td><%}%></tr>
+			<% } %>
+			</tbody>
+		</table>
+		<div class="additionalReports"></div>
+	<% } else { %>
+		<p><strong>No results to display. Unable to successfuly test any predictor.</strong></p>
+	<% } %>
+</script>
+
+</div>

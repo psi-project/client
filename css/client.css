@@ -1,0 +1,166 @@
+body { /*font: 62.5% "Trebuchet MS", sans-serif;*/ margin: 1ex 2ex; }
+
+note { font-style: italic; color: grey; }
+.hidden { display: none; }
+.small { font-size: x-small; }
+
+#attribution { text-align: center; }
+
+.ui-tabs-nav .ui-icon { display: inline-block; vertical-align: text-bottom; }
+li .ui-icon-close { float: left; margin: 0.4em 0.2em 0 0; cursor: pointer; }
+
+.urilist { list-style-type: none; margin: 0; padding: 0; }
+.urilist .ui-selecting { background: #FECA40; }
+.urilist .ui-selected { background: #F39814; color: white; }
+.urilist li { margin: 3px; padding: 0.4em; cursor: pointer; }
+.urilist .ui-selected note { color: lightgrey; }
+
+/** Modify style of some input controls and jQueryUI widgets (would be better done by using a suitable Bootstrap-friendly jQueryUI style file. */
+input.ui-spinner-input {
+	margin-top: 0px;
+	max-width: 7ex;
+	-webkit-transition: none;
+	-moz-transition: none;
+	-ms-transition: none;
+	-o-transition: none;
+	transition: none;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+
+input[type="image"], input[type="checkbox"], input[type="radio"] {
+	margin-top: 0px;
+}
+
+.ui-tooltip {
+	max-width: none;
+}
+
+/** Possible inclusion if switching to use jsTree for tree views. */
+.jstree-clicked note { color; lightgrey; }
+
+/* Marker class */
+.resList { }
+.scrollbox { max-height: 15em; overflow: auto; border: 1px solid lightgray; position: relative; }
+.boxcontrols { position: absolute; left: -40px; top: 0px; margin-bottom: 10px; }
+
+.detailsTable { margin-top: 0.5em; border-collapse: collapse; }
+.detailsTable th { text-align: left; vertical-align: top; padding: 0.2em; }
+.detailsTable tr:nth-child(odd) { background: rgba(255,255,255,0.75); }
+/* This should not be necessary soon; hmmm, except that the nice border is lost, which must be part of the jqueryUI theme. */
+.detailsTable pre { font-size: 100%; margin: 0; }
+
+.inline-block { display: inline-block; }
+.inline-icon-container { display: inline-block; vertical-align: top; margin-bottom: 0.5em; }
+
+.json { font-family: monospace; white-space: pre; margin: 0; }
+.schemaToggle { float: right; }
+.schemaToggle:hover { cursor: pointer; }
+
+.messagebox { margin-top: 20px; padding: 0 0.7em; font-weight: bold; }
+.messagebox .ui-icon { float: left; margin-right: .3em; }
+
+#messagesArea { float: bottom; }
+.ajax-loader { background: url(../img/ajax-loader.gif); width: 16px; height: 16px; display: inline-block; vertical-align: middle; }
+#workingPanel { position: fixed; top: 0px; right: 0px; margin: 1ex; }
+
+.detailsBox {	
+  font: 125% monospace;
+  color: black;
+  white-space: pre;
+  background: #eeeeee;
+  border: 1px solid lightgray;
+  margin: 1em 0em 1em 0em;
+  padding: 0.5em;
+  max-height: 10em;
+  overflow: auto;
+}
+
+.box {
+  color: black;
+  background: #eeeeee;
+  border: 1px solid lightgray;
+  box-shadow: 2px 2px 5px 0px grey inset;
+  margin: 1em 0em 1em 0em;
+  padding: 0.5em;
+  max-height: 10em;
+  overflow: auto;
+}
+	
+
+.detailsBox table { padding: 0; margin: 0; }
+.detailsBox th { text-align: left; vertical-align: top; }
+
+.attributesPanel { margin: 0.2em; padding: 0.5em; }
+
+.halfblock { display: inline-block; width: 50%; }
+
+/* Colour shading for structured results tables */
+/* Play around until a pleasing and useful effect is achieved. */
+table.resultTable { border: 1px solid gray; }
+table.resultTable thead { background-color:rgba(255, 100, 0, 0.25); }
+/*
+table.resultTable tbody { background-color:rgba(0,0,0,0.05); }
+table.resultTable tfoot { background-color:rgba(0,0,0,0.15); }
+*/
+table.resultTable th, table.resultTable td { padding: 0.5em; }
+table.resultTable thead tr:nth-child(odd) { background-color:rgba(255,100,100,0.16); }
+table.resultTable thead tr:nth-child(even) { background-color:rgba(255,192,100,0.16); }
+table.resultTable tr:nth-child(odd) { background-color:rgba(255,100,100,0.16); }
+table.resultTable tr:nth-child(even) { background-color:rgba(0,0,0,0.06); }
+table.resultTable th:nth-child(odd),
+table.resultTable td:nth-child(odd) { background-color:rgba(255,0,0,0.1); }
+
+/** Comparison tool reports */
+.reportPanel { padding: 1em; max-width: 83em; }
+.confusionMatrix { margin: 0em 0em 0.5em 0.5em; display: inline-block; }
+/* .confusionMatrix table { border: 1px solid grey; } */
+.confusionMatrix thead { background-color: rgba(0,0,0,0); }
+.confusionMatrix th, .confusionMatrix td { padding: 0.4em; }
+.confusionMatrix th.heading { background-color: rgba(0,0,0,0.16); }
+.confusionMatrix th.classLabel { background-color: rgba(256,192,0,0.16); }
+.confusionMatrix td.tp { background-color: rgba(0,256,0,0.25); }
+.confusionMatrix td.fp { background-color: rgba(256,0,0,0.25); }
+.confusionMatrix tr:nth-child(even) { background-color: rgba(0,0,0,0); }
+.confusionMatrix .top { border-top: 1px solid grey; }
+.confusionMatrix .left { border-left: 1px solid grey; }
+.confusionMatrix .bottom { border-bottom: 1px solid grey; }
+.confusionMatrix .right { border-right: 1px solid grey; }
+.reportChart { margin: 0em 0em 0.5em 0.5em; max-width: 40em; }
+
+/* Adjust Bootstrap form layout */
+
+legend { margin-bottom: 0; font-size: 125%; font-weight: bold; }
+.input-xlarge { width: 500px; }
+/* Restore default Bootstrap width inside dialog boxes. */
+.ui-dialog .input-xlarge { width: 270px; }
+
+/** Augment gradients from jQuery UI with ones to display requests and responses with different background shades */
+
+.request {
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#e5ffe5), color-stop(25%, #e5ffe5), to(#d9efd9));
+  background-image: -webkit-linear-gradient(#e5ffe5, #e5ffe5 25%, #e6efe6);
+  background-image: -moz-linear-gradient(top, #e5ffe5, #e5ffe5 25%, #d9efd9);
+  background-image: -ms-linear-gradient(#e5ffe5, #e5ffe5 25%, #d9efd9);
+  background-image: -o-linear-gradient(#e5ffe5, #e5ffe5 25%, #d9efd9);
+  background-image: linear-gradient(#e5ffe5, #e5ffe5 25%, #d9efd9);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e5ffe5', endColorstr='#d9efd9', GradientType=0);
+  border: 1px solid #ccc;
+}
+
+.response {
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffe5e5), color-stop(25%, #ffe5e5), to(#efd9d9));
+  background-image: -webkit-linear-gradient(#ffe5e5, #ffe5e5 25%, #efd9d9);
+  background-image: -moz-linear-gradient(top, #ffe5e5, #ffe5e5 25%, #efd9d9);
+  background-image: -ms-linear-gradient(#ffe5e5, #ffe5e5 25%, #efd9d9);
+  background-image: -o-linear-gradient(#ffe5e5, #ffe5e5 25%, #efd9d9);
+  background-image: linear-gradient(#ffe5e5, #ffe5e5 25%, #efd9d9);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffe5e5', endColorstr='#efd9d9', GradientType=0);
+  border: 1px solid #ccc;
+}
+
+.shadowDialog {
+  -webkit-box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);  
+  -moz-box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5); 
+}

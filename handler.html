@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>PSI Link Handler</title>
+	<meta charset="utf-8"/>
+	<meta name="author" title="James Montgomery (Australian National University)"/>
+	<meta name="description" title="web+psi 'protocol' handler for AJAX client for a PSI service"/>
+
+	<link type="text/css" href="css/bootstrap.min.css" rel="stylesheet" />
+	<link type="text/css" href="css/bootstrap-theme/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
+	<link type="text/css" href="css/client.css" rel="stylesheet" />
+
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.8/require.min.js"></script>
+	<script type="text/javascript">
+	require(['./js/config'], function(conf) {
+	    require(['jquery','underscore','psi.web+psi','bncconnector','jquery-ui'], function($, _, web_psi) {
+			/** From http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values */
+			function getParameterByName(name) {
+				name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+				var regexS = "[\\?&]" + name + "=([^&#]*)";
+				var regex = new RegExp(regexS);
+				var results = regex.exec(window.location.search);
+				if(results == null)
+					return "";
+				else
+					return decodeURIComponent(results[1].replace(/\+/g, " "));
+			}
+			
+			$(function() {
+				$('#clientLink').attr('href', web_psi.getClientURI());
+			
+				BNCConnectorMonitor.start();
+				var connectorInstance = new BNCConnector('p0');
+			
+				connectorInstance.onerror = function(type, o) {
+					console.log("Error sending message: " + o[0] + " to " + o[1] + " caused by " + type);
+					$('#errorDetails').html(type);
+					$('#errorMessage').removeClass('hidden');
+					$('#startLink').removeClass('hidden');
+				};
+			
+				connectorInstance.onsent = function(o) {
+					console.log("Succesively sent to URI '" + o[1] + "' to PSIClient");
+				};
+			
+				connectorInstance.listen = function(who, msg) {
+					if (who === 'p1' && msg === 'Started')
+						location.reload(); //not fool-proof, but a simple way to resend the URI and display the correct messages on this page
+				}
+			
+				function sendURI(uri) {
+					uri = uri || getParameterByName('uri');
+					connectorInstance.sendData('p1', uri);
+				}
+			
+				var uri = getParameterByName('uri');
+				if (uri.length > 0) {
+					$('.psiURI').html(uri);
+					if (uri.indexOf("web+psi://") == 0 || uri.indexOf("http://") == 0) {
+						$('#uriDisplay').removeClass('hidden');
+						if (! _.contains(BNCConnectorMonitor.getAllPeers(), 'p1')) {
+							$('#startMessage').removeClass('hidden');
+							$('#startLink').removeClass('hidden');
+						} else {
+							$('#success').removeClass('hidden');
+							sendURI(uri);
+						}
+					} else {
+						$('#badURIDisplay').removeClass('hidden');	
+					}
+				} else {
+					$('#noURIDisplay').removeClass('hidden');
+				}
+			
+				$('.goBack').click(function(e) { e.preventDefault(); history.back(-1); });
+			
+				//FIXME Why doesn't jQuery click() work? This retrieves the single matching element and then calls the standard click() trigger
+				$('#startButton').click(function(e) { $('#clientLink')[0].click(); } );
+			});
+	    });
+	});
+	</script>
+
+<style type="text/css">
+	body { margin: 0px; border-top: solid 10px blue; padding-top: 1ex; } 
+	#handler { max-width: 780px; margin: 10px auto; }
+	.btn a { color: white; }
+</style>
+
+</head>
+<body>
+	<div id="handler">
+		<h1><img src="img/psi_144x144.png" alt="PSI Logo" title="PSI Logo" style="float:left"/>Protocols &amp; Structures for Inference</h1>
+
+		<div id="uriDisplay" class="hidden">
+			<p id="startMessage" class="hidden">The PSI Explorer must be started to handle this link. Click the button below to start it in a new tab (or window, depending on your current preferences). While the explorer is running any further web+psi links you click will be passed to it with no further action required by you. (Note that this page will reload when the app has started to send it the web+psi link.)</p>
+			<div id="errorMessage" class="hidden">
+				<p>There was an error sending the PSI resource URI <span class="psiURI"></span> to the PSI explorer. Details: <span id="errorDetails"></span>.</p>
+				<p>Perhaps the app has been closed but the browser hasn't noticed. Try restarting it using the button below.</p>
+			</div>
+			<p id="startLink" class="hidden"><button class="btn btn-primary" id="startButton">Start PSI Explorer</button><a id="clientLink" target="_blank" class="hidden">Start PSI Explorer</a></p>
+			<div id="success" class="hidden">
+				<p>The PSI resource link <em><span class="psiURI"></span></em> has been passed to the PSI Explorer app. Check its tab or window to see what further action is required.</p>
+				<p><strong>You may now close this page or <a href="#" class="goBack">return to the previous page</a>.</strong></p>
+			</div>
+		</div>
+		<div id="badURIDisplay" class="hidden">
+			<p>The PSI web+psi protocol handler can only process URIs that begin with web+psi:// or http://. The URI it received is <span class="psiURI"></span>, which it cannot process. You may need to <a href="#" class="goBack" title="Go back to previous page, if there is one">go back</a> to the referring page.</p>
+		</div>
+		<div id="noURIDisplay" class="hidden">
+			<p>Oops, it looks like you've reached this web+psi protocol handler page by mistake as it received no web address to process. You'll need to close the page or <a href="#" class="goBack" title="Go back to previous page, if there is one">go back</a>.</p>
+		</div>
+	</div>
+
+</body>
+</html>
