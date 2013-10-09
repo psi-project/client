@@ -6,7 +6,7 @@
  * Developed as part of the Protocols and Structures for Inference project: http://psi.cecs.anu.edu.au
  */
 
-define(['jquery','underscore','psi.client','text!../../templates.html'], function($, _, client, templateHTML) {
+define(['jquery','underscore','psi.client','text!../templates.html'], function($, _, client, templateHTML) {
 	var module = {
 		$templates: $(templateHTML),
 
