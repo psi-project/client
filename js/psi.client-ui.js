@@ -144,7 +144,7 @@ console.log('INFORMATION: PSICollectionView has been removed from the DOM and is
 				client.showMessageDialog('The joined ' + what + ' was successfully deleted');
 			} else {
 				model.destroy({
-					error : function(jqXHR) { if (jqXHR.status != 403) client.showErrorAndDialog('Error deleting ' + what, jqXHR.responseText); },
+					error : function(resp,xhr) { if (xhr.status != 403) client.showErrorAndDialog('Error deleting ' + what, xhr.responseText); },
 					success : function() { client.showMessageDialog('The ' + what + ' was successfully deleted'); },
 					statusCode: { 403: function() { client.showMessageDialog('This ' + what + ' cannot be deleted'); } }
 				});
