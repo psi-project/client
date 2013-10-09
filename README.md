@@ -20,7 +20,7 @@ Note that, [due to security restrictions](https://developer.mozilla.org/en-US/do
 
 Assuming you have previously registered a protocol handler for web+psi links, the following should load the project's demonstration service into a new client or an already open client:
 
-<web+psi://poseidon.cecs.anu.edu.au>
+<a href="web+psi://poseidon.cecs.anu.edu.au">web+psi://poseidon.cecs.anu.edu.au</a>
 
 ## Further documentation
 
