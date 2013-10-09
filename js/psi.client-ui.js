@@ -121,9 +121,11 @@ console.log('INFORMATION: PSICollectionView has been removed from the DOM and is
 		/** Requests and presents the value of the emitter based on the given ValueModel argument. */
 		getEmitterValue: function($div, model, value, errorMsg, enableButton) {
 			value.fetch({
-				success: function(value) {
+				success: function(value,response) {
 					$div.find('.attributeResult').empty().append( table.valueResponseToTable(model, value) );
 					enableButton();
+					//Since not a true PSI model, parse() won't be called so logResponse won't be triggered
+					value.logResponse(response);
 				},
 				error: function(value,xhr) {
 					client.showErrorAndDialog(errorMsg +
@@ -378,12 +380,18 @@ console.log('INFORMATION: PSICollectionView has been removed from the DOM and is
 			}
 			return this;
 		},
-		/** Original predefined schema included all details, whereas since draft v4 they can use allOf to 'import' details from another schema. */
+		/**
+		 * Original predefined schema included all details, whereas since
+		 * draft v4 they can use allOf to 'import' details from another schema
+		 * and even oneOf at the top level to say that two alternative
+		 * resources would be suitable.
+		 */
 		_getPSIType: function(schema) {
-			if (schema.properties.psiType)
-				return schema.properties.psiType.enum[0];
-			if (schema.allOf) //get first non-null result from looking at other schema
-				return _.find( _.map(schema.allOf, this._getPSIType, this), _.identity, this);
+			if (schema.properties && schema.properties.psiType)
+                return schema.properties.psiType.enum[0];
+            var of = schema.oneOf || schema.anyOf || schema.allOf;
+            if (of) //get first non-null result from looking at other schema (assumption is that they'll all have same psiType)
+				return _.find( _.map(of, this._getPSIType, this), _.identity, this);
 			return null;
 		},
 		hideTask: function() { this.$el.find('.taskOutput').fadeOut(); },
