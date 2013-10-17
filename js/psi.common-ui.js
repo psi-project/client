@@ -245,7 +245,7 @@ define(['jquery','underscore','backbone','psi.models','psi.client','psi.template
 			return def;
 		},
 		_allTypes: ['service','resource-list','relation','attribute','learner','transformer','predictor','joins'],
-		_alwaysVisibleTypes: ['service','resource-list','joins'],
+		_alwaysVisibleTypes: ['service','resource-list'],
 		_visibleTypes: ['service','resource-list','relation','attribute','transformer','predictor','joins'], //initial defaults
 		_selectableTypes: [ 'attribute', 'transformer', 'predictor' ],
 		initialize: function() {
@@ -318,6 +318,7 @@ define(['jquery','underscore','backbone','psi.models','psi.client','psi.template
 		hideTypes: function(types) {
 			this.showAllTypes();
 			_.each(types, function(type) { this.$tree.find('li[rel=' + type + ']').hide(); }, this);
+			this._visibleTypes = _.difference(this._visibleTypes, types);
 		},
 		showAllTypes: function() { this.$tree.find('li').show(); },
 		setSelectableTypes: function(types) {

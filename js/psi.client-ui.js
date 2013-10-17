@@ -240,6 +240,7 @@ console.log('INFORMATION: PSICollectionView has been removed from the DOM and is
 			_.extend(this, Backbone.Events);
 			this.el.title = 'Create new attribute';
 			this.attrTree = new psi_ui.ResourceTreeDisplay({ model: this.model, hideListControls: true });
+			this.attrTree.hideTypes(['joins']); //At this stage the demonstration service does not support using joined attributes in new structured attributes.
 			forms.addURI( this.formData.schema, this.model.getRequestURI() );
 		},
 		setModel: function(model) {
